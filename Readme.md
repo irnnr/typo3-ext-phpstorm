@@ -23,5 +23,5 @@ In your TYPO3 installation's root directory call the following command:
 
 	typo3/cli_dispatch.phpsh phpstorm_metadata
 
-Note, this will take some time since all the PHP files in your installations
+Note, this will take some time since all the PHP files in your installation
 will be analyzed.
