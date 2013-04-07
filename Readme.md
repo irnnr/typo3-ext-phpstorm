@@ -19,7 +19,10 @@ Supported factory methods are:
 The extension provides a cli command to execute the generation of the meta data
 sfile.
 
-In your TYPO3 installation's root directory call the following command:
+First, add a TYPO3 backend user named "_cli_phpstorm", password doesn't matter
+and it also doesn't need any permissions, just needs to exist.
+
+Now, in your TYPO3 installation's root directory execute the following command:
 
 	typo3/cli_dispatch.phpsh phpstorm_metadata
 
