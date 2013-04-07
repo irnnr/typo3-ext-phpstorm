@@ -87,6 +87,10 @@ PHP_STORM_META;
 			fwrite($metaDataFile, "		\\$factoryMethod('') => [\n");
 			foreach ($classes as $class) {
 				fwrite($metaDataFile, "			'$class' instanceof \\$class,\n");
+				if (strstr($class, '\\')) {
+					$className = str_replace('\\', '\\\\', $class);
+					fwrite($metaDataFile, "			'$className' instanceof \\$class,\n");
+				}
 			}
 			fwrite($metaDataFile, "		],\n");
 		}
