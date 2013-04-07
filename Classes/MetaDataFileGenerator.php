@@ -71,6 +71,7 @@ class MetaDataFileGenerator {
 	 * @param array $classes Array of class names found in the installation
 	 */
 	protected function generateMetaDataFile(array $classes) {
+		$metaDataFile = fopen(PATH_site . '/.phpstorm.meta.php', 'w');
 		$metaDataMap = <<< PHP_STORM_META
 <?php
 namespace PHPSTORM_META {
@@ -80,22 +81,22 @@ namespace PHPSTORM_META {
 	\$STATIC_METHOD_TYPES = [
 
 PHP_STORM_META;
+		fwrite($metaDataFile, $metaDataMap);
 
 		foreach ($this->factoryMethods as $factoryMethod) {
-			$metaDataMap .= "		\\$factoryMethod('') => [\n";
+			fwrite($metaDataFile, "		\\$factoryMethod('') => [\n");
 			foreach ($classes as $class) {
-				$metaDataMap .= "			'$class' instanceof \\$class,\n";
+				fwrite($metaDataFile, "			'$class' instanceof \\$class,\n");
 			}
-			$metaDataMap .= "		],\n";
+			fwrite($metaDataFile, "		],\n");
 		}
 
-		$metaDataMap .= <<< PHP_STORM_META
+		$metaDataMap = <<< PHP_STORM_META
 	];
 }
 ?>
 PHP_STORM_META;
 
-		$metaDataFile = fopen(PATH_site . '/.phpstorm.meta.php', 'w');
 		fwrite($metaDataFile, $metaDataMap);
 		fclose($metaDataFile);
 	}
