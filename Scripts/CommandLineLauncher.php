@@ -26,9 +26,10 @@ if (TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_CLI && basename(PATH_thisScript) == 'c
 	$generator = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\CMS\Phpstorm\MetaDataFileGenerator');
 	$generator->run();
 
-	echo 'done.';
+	$peakMemory = memory_get_peak_usage(TRUE);
+	echo('done with ' . \TYPO3\CMS\Core\Utility\GeneralUtility::formatSize($peakMemory) . ' Memory usage.' . LF);
 } else {
-	die('This script must be included by the "CLI module dispatcher"');
+	die('This script must be included by the "CLI module dispatcher"' . LF);
 }
 
 ?>
