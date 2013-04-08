@@ -49,12 +49,6 @@ class CommandLineLauncher extends \TYPO3\CMS\Core\Controller\CommandLineControll
 				case '--disableClassAliases':
 					$generator->setIncludeAliases(FALSE);
 					break;
-				case '--extensions':
-					$extensions = GeneralUtility::trimExplode($value);
-					foreach ($extensions as $extensions) {
-						$generator->appendExtension($extension);
-					}
-					break;
 			}
 		}
 	}

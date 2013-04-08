@@ -48,11 +48,6 @@ class MetaDataFileGenerator {
 	);
 
 	/**
-	 * @var array Extensions for which to generate the factory map file
-	 */
-	protected $extensions = array();
-
-	/**
 	 * @var string The file into which the data is written
 	 */
 	protected $outFile = '';
@@ -62,6 +57,7 @@ class MetaDataFileGenerator {
 	 */
 	protected $includeAliases = TRUE;
 
+
 	/**
 	 * Set the default value for the output file
 	 */
@@ -70,19 +66,11 @@ class MetaDataFileGenerator {
 	}
 
 	/**
-	 * @param string $extension An extension name to check
-	 */
-	public function appendExtension($extension) {
-		$this->extensions[] = $extension;
-	}
-
-	/**
 	 * @param boolean $include Include class aliases (old class names)?
 	 */
 	public function setIncludeAliases($include) {
 		$this->includeAliases = $include;
 	}
-
 
 	/**
 	 * Gathers class information and eventually creates the PhpStorm meta data
@@ -174,11 +162,11 @@ PHP_STORM_META;
 	 * each file. Also takes care of properly prefixing the class with the
 	 * file's namespace.
 	 *
-	 * @param string $scanRootPath The starting point as absolute path to a folder
 	 * @return array An array of classes found in PHP files in the installation
 	 */
-	protected function getClassesFromFiles($scanRootPath) {
-		$classes = array();
+	protected function getClassesFromFiles() {
+		$scanRootPath = PATH_site;
+		$classes      = array();
 
 		$iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($scanRootPath, \FilesystemIterator::FOLLOW_SYMLINKS));
 		$files = new \RegexIterator($iterator, '/^.+\.php$/', \RecursiveRegexIterator::GET_MATCH);
