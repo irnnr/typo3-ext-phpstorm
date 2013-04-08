@@ -61,7 +61,7 @@ class CommandLineLauncher {
 			$generator->run();
 
 			$peakMemory = memory_get_peak_usage(TRUE);
-			$this->cliEcho('Done, used ' . CompatibilityUtility::formatSize($peakMemory) . ' Memory.' . LF);
+			$this->cliEcho('Done, memory used: ' . CompatibilityUtility::formatSize($peakMemory) . LF);
 		} else {
 			die('This script must be included by the "CLI module dispatcher"' . LF);
 		}
