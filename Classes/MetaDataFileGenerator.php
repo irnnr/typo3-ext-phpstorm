@@ -143,10 +143,10 @@ PHP_STORM_META;
 	 */
 	protected function getCoreAndExtensionClassAliases() {
 		$aliasToClassNameMapping = array();
-		foreach (ExtensionManagementUtility::getLoadedExtensionListArray() as $extensionKey) {
+		foreach (CompatibilityUtility::getLoadedExtensionListArray() as $extensionKey) {
 			try {
-				$extensionClassAliasMap = ExtensionManagementUtility::extPath($extensionKey, 'Migrations/Code/ClassAliasMap.php');
-				if (file_exists($extensionClassAliasMap)) {
+				$extensionClassAliasMap = CompatibilityUtility::extPath($extensionKey, 'Migrations/Code/ClassAliasMap.php');
+				if (@file_exists($extensionClassAliasMap)) {
 					$aliasToClassNameMapping = array_merge($aliasToClassNameMapping, require $extensionClassAliasMap);
 				}
 			} catch (\BadFunctionCallException $e) {
