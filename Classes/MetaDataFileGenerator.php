@@ -53,21 +53,32 @@ class MetaDataFileGenerator {
 	protected $outFile = '';
 
 	/**
+	 * @var boolean Whether to include the class aliases (old class names)
+	 */
+	protected $includeAliases = TRUE;
+
 	/**
 	 * Set the default value for the output file
 	 */
 	public function __construct() {
 		$this->outFile = PATH_site . '/.phpstorm.meta.php';
 	}
+	/**
+	 * @param boolean $include Include class aliases (old class names)?
+	 */
+	public function setIncludeAliases($include) {
+		$this->includeAliases = $include;
+	}
 	 * Getters class information and eventually creates the PhpStorm meta data
 	 * file.
 	 *
 	 */
 	public function run() {
-		$classesFromFiles = $this->getClassesFromFiles();
-		$classAliases     = $this->getCoreAndExtensionClassAliases();
-
-		$classes = array_merge($classesFromFiles, $classAliases);
+		$classesFromFiles = $this->getClassesFromFiles(PATH_site);
+		if ($this->includeAliases) {
+			$classAliases = $this->getCoreAndExtensionClassAliases();
+			$classes = array_merge($classesFromFiles, $classAliases);
+		}
 		$classes = array_unique($classes);
 
 		$this->generateMetaDataFile($classes);
