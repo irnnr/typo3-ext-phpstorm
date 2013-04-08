@@ -23,15 +23,14 @@ namespace TYPO3\CMS\Phpstorm;
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 
-use TYPO3\CMS\Core\Controller\CommandLineController;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+require_once(dirname(__FILE__) . '/../Classes/CompatibilityUtility.php');
 
 /**
  * CommandLineLauncher
  *
  * @package TYPO3\CMS\Phpstorm
  */
-class CommandLineLauncher extends CommandLineController {
+class CommandLineLauncher {
 
 	/**
 	 * "main"
@@ -39,7 +38,8 @@ class CommandLineLauncher extends CommandLineController {
 	 */
 	public function cli_main() {
 		if (TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_CLI && basename(PATH_thisScript) == 'cli_dispatch.phpsh') {
-			$generator = GeneralUtility::makeInstance('TYPO3\CMS\Phpstorm\MetaDataFileGenerator');
+			/** @var MetaDataFileGenerator $generator */
+			$generator = CompatibilityUtility::makeInstance('TYPO3\\CMS\\Phpstorm\\MetaDataFileGenerator');
 			$this->handleCliArguments($generator);
 			$generator->run();
 
