@@ -85,15 +85,16 @@ class MetaDataFileGenerator {
 
 
 	/**
-	 * Getters class information and eventually creates the PhpStorm meta data
+	 * Gathers class information and eventually creates the PhpStorm meta data
 	 * file.
 	 *
 	 */
 	public function run() {
-		$classesFromFiles = $this->getClassesFromFiles(PATH_site);
+		$classes = $this->getClassesFromFiles(PATH_site);
 		if ($this->includeAliases) {
 			$classAliases = $this->getCoreAndExtensionClassAliases();
-			$classes = array_merge($classesFromFiles, $classAliases);
+			$classes = array_merge($classes, $classAliases);
+			unset($classAliases);
 		}
 		$classes = array_unique($classes);
 
