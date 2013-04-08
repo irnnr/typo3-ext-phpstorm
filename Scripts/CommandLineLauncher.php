@@ -39,6 +39,6 @@ class CommandLineLauncher extends \TYPO3\CMS\Core\Controller\CommandLineControll
 }
 
 // This file is included directly, thus instantiate the class and run it
-$adminObj = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\CMS\Phpstorm\CommandLineLauncher');
+$adminObj = new \TYPO3\CMS\Phpstorm\CommandLineLauncher;
 $adminObj->cli_main();
 ?>
