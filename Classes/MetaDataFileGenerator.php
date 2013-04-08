@@ -47,17 +47,55 @@ class MetaDataFileGenerator {
 		'TYPO3\CMS\Extbase\Object\ObjectManager::get'
 	);
 
+	/**
+	 * @var array Extensions for which to generate the factory map file
+	 */
+	protected $extensions = array();
 
 	/**
-	 * Getters class information and eventually creates the PhpStorm meta data
+	 * @var string The file into which the data is written
+	 */
+	protected $outFile = '';
+
+	/**
+	 * @var boolean Whether to include the class aliases (old class names)
+	 */
+	protected $includeAliases = TRUE;
+
+	/**
+	 * Set the default value for the output file
+	 */
+	public function __construct() {
+		$this->outFile = PATH_site . '.phpstorm.meta.php';
+	}
+
+	/**
+	 * @param string $extension An extension name to check
+	 */
+	public function appendExtension($extension) {
+		$this->extensions[] = $extension;
+	}
+
+	/**
+	 * @param boolean $include Include class aliases (old class names)?
+	 */
+	public function setIncludeAliases($include) {
+		$this->includeAliases = $include;
+	}
+
+
+	/**
+	 * Gathers class information and eventually creates the PhpStorm meta data
 	 * file.
 	 *
 	 */
 	public function run() {
-		$classesFromFiles = $this->getClassesFromFiles();
-		$classAliases     = $this->getCoreAndExtensionClassAliases();
-
-		$classes = array_merge($classesFromFiles, $classAliases);
+		$classes = $this->getClassesFromFiles(PATH_site);
+		if ($this->includeAliases) {
+			$classAliases = $this->getCoreAndExtensionClassAliases();
+			$classes = array_merge($classes, $classAliases);
+			unset($classAliases);
+		}
 		$classes = array_unique($classes);
 
 		$this->generateMetaDataFile($classes);
@@ -71,6 +109,7 @@ class MetaDataFileGenerator {
 	 * @param array $classes Array of class names found in the installation
 	 */
 	protected function generateMetaDataFile(array $classes) {
+		$metaDataFile = fopen($this->outFile, 'w');
 		$metaDataMap = <<< PHP_STORM_META
 <?php
 namespace PHPSTORM_META {
@@ -80,22 +119,26 @@ namespace PHPSTORM_META {
 	\$STATIC_METHOD_TYPES = [
 
 PHP_STORM_META;
+		fwrite($metaDataFile, $metaDataMap);
 
 		foreach ($this->factoryMethods as $factoryMethod) {
-			$metaDataMap .= "		\\$factoryMethod('') => [\n";
+			fwrite($metaDataFile, "		\\$factoryMethod('') => [\n");
 			foreach ($classes as $class) {
-				$metaDataMap .= "			'$class' instanceof \\$class,\n";
+				fwrite($metaDataFile, "			'$class' instanceof \\$class,\n");
+				if (strstr($class, '\\')) {
+					$className = str_replace('\\', '\\\\', $class);
+					fwrite($metaDataFile, "			'$className' instanceof \\$class,\n");
+				}
 			}
-			$metaDataMap .= "		],\n";
+			fwrite($metaDataFile, "		],\n");
 		}
 
-		$metaDataMap .= <<< PHP_STORM_META
+		$metaDataMap = <<< PHP_STORM_META
 	];
 }
 ?>
 PHP_STORM_META;
 
-		$metaDataFile = fopen(PATH_site . '/.phpstorm.meta.php', 'w');
 		fwrite($metaDataFile, $metaDataMap);
 		fclose($metaDataFile);
 	}
@@ -131,11 +174,11 @@ PHP_STORM_META;
 	 * each file. Also takes care of properly prefixing the class with the
 	 * file's namespace.
 	 *
+	 * @param string $scanRootPath The starting point as absolute path to a folder
 	 * @return array An array of classes found in PHP files in the installation
 	 */
-	protected function getClassesFromFiles() {
-		$scanRootPath = PATH_site;
-		$classes      = array();
+	protected function getClassesFromFiles($scanRootPath) {
+		$classes = array();
 
 		$iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($scanRootPath, \FilesystemIterator::FOLLOW_SYMLINKS));
 		$files = new \RegexIterator($iterator, '/^.+\.php$/', \RecursiveRegexIterator::GET_MATCH);
@@ -184,7 +227,7 @@ PHP_STORM_META;
 		}
 		fclose ($fileHandle);
 
-		$matches = null;
+		$matches = NULL;
 		$matched = preg_match('/^namespace[ \t]+(.*);$/', $lines[1], $matches);
 
 		return ($matched ? $matches[1] . '\\' : '');
