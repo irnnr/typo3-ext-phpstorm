@@ -23,28 +23,34 @@ namespace TYPO3\CMS\Phpstorm;
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 
-use TYPO3\CMS\Core\Controller\CommandLineController;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+require_once(dirname(__FILE__) . '/../Classes/CompatibilityUtility.php');
 
 /**
  * CommandLineLauncher
  *
  * @package TYPO3\CMS\Phpstorm
  */
-class CommandLineLauncher extends CommandLineController {
+class CommandLineLauncher {
 
 	/**
-	 * "main"
-	 *
+	 * @var array
+	 */
+	protected $cliArguments = array();
+
+	/**
+	 * Main function of the command line launcher
 	 */
 	public function cli_main() {
 		if (TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_CLI && basename(PATH_thisScript) == 'cli_dispatch.phpsh') {
-			$generator = GeneralUtility::makeInstance('TYPO3\CMS\Phpstorm\MetaDataFileGenerator');
+			$this->cliArguments = $_SERVER['argv'];
+
+			/** @var MetaDataFileGenerator $generator */
+			$generator = CompatibilityUtility::makeInstance('TYPO3\\CMS\\Phpstorm\\MetaDataFileGenerator');
 			$this->handleCliArguments($generator);
 			$generator->run();
 
 			$peakMemory = memory_get_peak_usage(TRUE);
-			$this->cli_echo('Done, used ' . GeneralUtility::formatSize($peakMemory) . ' Memory.' . LF);
+			$this->cliEcho('Done, used ' . CompatibilityUtility::formatSize($peakMemory) . ' Memory.' . LF);
 		} else {
 			die('This script must be included by the "CLI module dispatcher"' . LF);
 		}
@@ -56,13 +62,32 @@ class CommandLineLauncher extends CommandLineController {
 	 * @param \TYPO3\CMS\Phpstorm\MetaDataFileGenerator $generator
 	 */
 	protected function handleCliArguments(MetaDataFileGenerator $generator) {
-		foreach ($this->cli_args as $name => $value) {
-			switch ($name) {
-				case '--disableClassAliases':
-					$generator->setIncludeAliases(FALSE);
-					break;
+		if (is_array($this->cliArguments)) {
+			foreach ($this->cliArguments as $name => $value) {
+				switch ($name) {
+					case '--disableClassAliases':
+						$generator->setIncludeAliases(FALSE);
+						break;
+				}
 			}
 		}
+	}
+
+	/**
+	 * @param string $string
+	 * @param boolean $force
+	 *
+	 * @return boolean
+	 */
+	protected function cliEcho($string, $force = FALSE) {
+		if (!isset($this->cliArguments['-ss'])) {
+			if ((!isset($this->cliArguments['-s']) && !isset($this->cliArguments['--silent'])) || $force) {
+				echo $string;
+				return TRUE;
+			}
+		}
+
+		return FALSE;
 	}
 }
 
