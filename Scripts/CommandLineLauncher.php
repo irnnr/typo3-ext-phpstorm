@@ -47,7 +47,7 @@ class CommandLineLauncher {
 				if ($value[0] === '-' && (string)intval($value) !== (string)$value) {
 					list($argument, $argumentValue) = explode('=', $value, 2);
 					if (isset($this->cliArguments[$argument])) {
-						echo 'ERROR: Option ' . $argument . ' was used twice!';
+						$this->cliEcho('ERROR: Option ' . $argument . ' was used twice!', TRUE);
 						die;
 					}
 					$this->cliArguments[$argument] = $argumentValue ? $argumentValue : '';
@@ -83,6 +83,8 @@ class CommandLineLauncher {
 	}
 
 	/**
+	 * Sends an output to stdOut according to the command line parameter
+	 * 
 	 * @param string $string
 	 * @param boolean $force
 	 *
