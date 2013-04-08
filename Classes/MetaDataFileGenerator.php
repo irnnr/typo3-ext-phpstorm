@@ -66,7 +66,7 @@ class MetaDataFileGenerator {
 	 * Set the default value for the output file
 	 */
 	public function __construct() {
-		$this->outFile = PATH_site . '/.phpstorm.meta.php';
+		$this->outFile = PATH_site . '.phpstorm.meta.php';
 	}
 
 	/**

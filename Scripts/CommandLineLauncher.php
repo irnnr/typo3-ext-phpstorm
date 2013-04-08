@@ -34,7 +34,7 @@ class CommandLineLauncher extends \TYPO3\CMS\Core\Controller\CommandLineControll
 			$generator->run();
 
 			$peakMemory = memory_get_peak_usage(TRUE);
-			$this->cli_echo('done with ' . \TYPO3\CMS\Core\Utility\GeneralUtility::formatSize($peakMemory) . ' Memory usage.' . LF);
+			$this->cli_echo('Done with ' . \TYPO3\CMS\Core\Utility\GeneralUtility::formatSize($peakMemory) . ' Memory usage.' . LF);
 		} else {
 			die('This script must be included by the "CLI module dispatcher"' . LF);
 		}
