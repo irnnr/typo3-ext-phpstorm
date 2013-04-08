@@ -47,8 +47,18 @@ class MetaDataFileGenerator {
 		'TYPO3\CMS\Extbase\Object\ObjectManager::get'
 	);
 
+	/**
+	 * @var string The file into which the data is written
+	 */
+	protected $outFile = '';
 
 	/**
+	/**
+	 * Set the default value for the output file
+	 */
+	public function __construct() {
+		$this->outFile = PATH_site . '/.phpstorm.meta.php';
+	}
 	 * Getters class information and eventually creates the PhpStorm meta data
 	 * file.
 	 *
@@ -71,7 +81,7 @@ class MetaDataFileGenerator {
 	 * @param array $classes Array of class names found in the installation
 	 */
 	protected function generateMetaDataFile(array $classes) {
-		$metaDataFile = fopen(PATH_site . '/.phpstorm.meta.php', 'w');
+		$metaDataFile = fopen($this->outFile, 'w');
 		$metaDataMap = <<< PHP_STORM_META
 <?php
 namespace PHPSTORM_META {
@@ -189,7 +199,7 @@ PHP_STORM_META;
 		}
 		fclose ($fileHandle);
 
-		$matches = null;
+		$matches = NULL;
 		$matched = preg_match('/^namespace[ \t]+(.*);$/', $lines[1], $matches);
 
 		return ($matched ? $matches[1] . '\\' : '');
