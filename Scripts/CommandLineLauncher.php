@@ -50,7 +50,7 @@ class CommandLineLauncher {
 						echo 'ERROR: Option ' . $argument . ' was used twice!';
 						die;
 					}
-					$this->cliArguments[$argument] = $argumentValue;
+					$this->cliArguments[$argument] = $argumentValue ? $argumentValue : '';
 				}
 			}
 			unset($value);
@@ -61,7 +61,7 @@ class CommandLineLauncher {
 			$generator->run();
 
 			$peakMemory = memory_get_peak_usage(TRUE);
-			echo $this->cliEcho('Done, used ' . CompatibilityUtility::formatSize($peakMemory) . ' Memory.' . LF);
+			$this->cliEcho('Done, used ' . CompatibilityUtility::formatSize($peakMemory) . ' Memory.' . LF);
 		} else {
 			die('This script must be included by the "CLI module dispatcher"' . LF);
 		}
