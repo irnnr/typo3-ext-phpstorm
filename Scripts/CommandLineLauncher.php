@@ -33,11 +33,28 @@ require_once(dirname(__FILE__) . '/../Classes/CompatibilityUtility.php');
 class CommandLineLauncher {
 
 	/**
-	 * "main"
-	 *
+	 * @var array
+	 */
+	protected $cliArguments = array();
+
+	/**
+	 * Main function of the command line launcher
 	 */
 	public function cli_main() {
 		if (TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_CLI && basename(PATH_thisScript) == 'cli_dispatch.phpsh') {
+			// Convert cli arguments to an array
+			foreach ($_SERVER['argv'] as $value) {
+				if ($value[0] === '-' && (string)intval($value) !== (string)$value) {
+					list($argument, $argumentValue) = explode('=', $value, 2);
+					if (isset($this->cliArguments[$argument])) {
+						echo 'ERROR: Option ' . $argument . ' was used twice!';
+						die;
+					}
+					$this->cliArguments[$argument] = $argumentValue;
+				}
+			}
+			unset($value);
+
 			/** @var MetaDataFileGenerator $generator */
 			$generator = CompatibilityUtility::makeInstance('TYPO3\\CMS\\Phpstorm\\MetaDataFileGenerator');
 			$this->handleCliArguments($generator);
@@ -56,7 +73,7 @@ class CommandLineLauncher {
 	 * @param \TYPO3\CMS\Phpstorm\MetaDataFileGenerator $generator
 	 */
 	protected function handleCliArguments(MetaDataFileGenerator $generator) {
-		foreach ($this->cli_args as $name => $value) {
+		foreach ($this->cliArguments as $name => $value) {
 			switch ($name) {
 				case '--disableClassAliases':
 					$generator->setIncludeAliases(FALSE);
