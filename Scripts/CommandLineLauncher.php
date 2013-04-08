@@ -61,7 +61,7 @@ class CommandLineLauncher {
 			$generator->run();
 
 			$peakMemory = memory_get_peak_usage(TRUE);
-			$this->cli_echo('Done, used ' . GeneralUtility::formatSize($peakMemory) . ' Memory.' . LF);
+			echo $this->cliEcho('Done, used ' . CompatibilityUtility::formatSize($peakMemory) . ' Memory.' . LF);
 		} else {
 			die('This script must be included by the "CLI module dispatcher"' . LF);
 		}
@@ -80,6 +80,23 @@ class CommandLineLauncher {
 					break;
 			}
 		}
+	}
+
+	/**
+	 * @param string $string
+	 * @param boolean $force
+	 *
+	 * @return boolean
+	 */
+	protected function cliEcho($string, $force = FALSE) {
+		if (!isset($this->cliArguments['-ss'])) {
+			if ((!isset($this->cliArguments['-s']) && !isset($this->cliArguments['--silent'])) || $force) {
+				echo $string;
+				return TRUE;
+			}
+		}
+
+		return FALSE;
 	}
 }
 
