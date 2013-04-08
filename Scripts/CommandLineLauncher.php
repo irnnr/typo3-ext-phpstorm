@@ -83,6 +83,8 @@ class CommandLineLauncher {
 	}
 
 	/**
+	 * Sends an output to stdOut according to the command line parameter
+	 * 
 	 * @param string $string
 	 * @param boolean $force
 	 *
