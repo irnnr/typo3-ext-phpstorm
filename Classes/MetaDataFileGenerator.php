@@ -23,9 +23,6 @@ namespace TYPO3\CMS\Phpstorm;
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 
-use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-
 
 /**
  * PhpStorm uses a meta data file to help with code completion when factory
@@ -143,9 +140,9 @@ PHP_STORM_META;
 	 */
 	protected function getCoreAndExtensionClassAliases() {
 		$aliasToClassNameMapping = array();
-		foreach (ExtensionManagementUtility::getLoadedExtensionListArray() as $extensionKey) {
+		foreach (CompatibilityUtility::getLoadedExtensionListArray() as $extensionKey) {
 			try {
-				$extensionClassAliasMap = ExtensionManagementUtility::extPath($extensionKey, 'Migrations/Code/ClassAliasMap.php');
+				$extensionClassAliasMap = CompatibilityUtility::extPath($extensionKey, 'Migrations/Code/ClassAliasMap.php');
 				if (file_exists($extensionClassAliasMap)) {
 					$aliasToClassNameMapping = array_merge($aliasToClassNameMapping, require $extensionClassAliasMap);
 				}
