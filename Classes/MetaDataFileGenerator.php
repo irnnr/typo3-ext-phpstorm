@@ -84,7 +84,7 @@ PHP_STORM_META;
 		foreach ($this->factoryMethods as $factoryMethod) {
 			$metaDataMap .= "		\\$factoryMethod('') => [\n";
 			foreach ($classes as $class) {
-				$metaDataMap .= "			'$class' instanceof \\$class,\n";
+				$metaDataMap .= "			'" . str_replace('\\', '\\\\', $class) . "' instanceof \\$class,\n";
 			}
 			$metaDataMap .= "		],\n";
 		}
