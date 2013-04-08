@@ -1,4 +1,6 @@
 <?php
+namespace TYPO3\CMS\Phpstorm;
+
 /***************************************************************
 *  Copyright notice
 *
@@ -21,15 +23,22 @@
 *
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
+class CommandLineLauncher extends \TYPO3\CMS\Core\Controller\CommandLineController {
 
-if (TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_CLI && basename(PATH_thisScript) == 'cli_dispatch.phpsh') {
-	$generator = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\CMS\Phpstorm\MetaDataFileGenerator');
-	$generator->run();
+	public function cli_main() {
+		if (TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_CLI && basename(PATH_thisScript) == 'cli_dispatch.phpsh') {
+			$generator = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\CMS\Phpstorm\MetaDataFileGenerator');
+			$generator->run();
 
-	$peakMemory = memory_get_peak_usage(TRUE);
-	echo('done with ' . \TYPO3\CMS\Core\Utility\GeneralUtility::formatSize($peakMemory) . ' Memory usage.' . LF);
-} else {
-	die('This script must be included by the "CLI module dispatcher"' . LF);
+			$peakMemory = memory_get_peak_usage(TRUE);
+			$this->cli_echo('done with ' . \TYPO3\CMS\Core\Utility\GeneralUtility::formatSize($peakMemory) . ' Memory usage.' . LF);
+		} else {
+			die('This script must be included by the "CLI module dispatcher"' . LF);
+		}
+	}
 }
 
+// This file is included directly, thus instantiate the class and run it
+$adminObj = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\CMS\Phpstorm\CommandLineLauncher');
+$adminObj->cli_main();
 ?>
