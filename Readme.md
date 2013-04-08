@@ -38,13 +38,9 @@ provide backwardscompatibility with extensions that do not use the new names
 yet a class alias map has been created. By default that alias map is included.
 Use --disableClassAliases to prevent including those aliasses.
 
-### -s
+### -s, --silent
 
 Silent operation, will only output errors and important messages.
-
-### --silent
-
-Same as -s. This was implemented due to general TYPO3 cli parameter handling.
 
 ### -ss
 
