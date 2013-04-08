@@ -59,13 +59,16 @@ class MetaDataFileGenerator {
 
 
 	/**
-	 * Set the default value for the output file
+	 * Constructor, sets the default value for the output file
+	 *
 	 */
 	public function __construct() {
 		$this->outFile = PATH_site . '.phpstorm.meta.php';
 	}
 
 	/**
+	 * Allows to set whether to include class aliases or not.
+	 *
 	 * @param boolean $include Include class aliases (old class names)?
 	 */
 	public function setIncludeAliases($include) {
