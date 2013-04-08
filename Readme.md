@@ -28,3 +28,12 @@ Now, in your TYPO3 installation's root directory execute the following command:
 
 Note, this will take some time since all the PHP files in your installation
 will be analyzed.
+
+## Commandline Arguments
+
+### --disableClassAliases
+
+TYPO3 CMS 6.0 introduced namespaces and cleaned up a lot of class names. To
+provide backwardscompatibility with extensions that do not use the new names
+yet a class alias map has been created. By default that alias map is included.
+Use --disableClassAliases to prevent including those aliasses.
