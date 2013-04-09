@@ -64,14 +64,14 @@ class MetaDataFileGenerator {
 	}
 
 	/**
-	 * Allows to set whether to include class aliases or not.
+	 * Allows to turn off the inclusion of class aliases.
 	 *
-	 * @param boolean $include Whether to include class aliases (old class names)
+	 * @param mixed $value This parameter is not in use and only added because of compatibility
 	 *
 	 * @return void
 	 */
-	public function setIncludeAliases($include) {
-		$this->includeAliases = $include;
+	public function setDisableClassAliases($value) {
+		$this->includeAliases = FALSE;
 	}
 
 	/**

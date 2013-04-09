@@ -78,10 +78,12 @@ class CommandLineLauncher {
 	 */
 	protected function handleCliArguments(MetaDataFileGenerator $generator) {
 		foreach ($this->cliArguments as $name => $value) {
-			switch ($name) {
-				case '--disableClassAliases':
-					$generator->setIncludeAliases(FALSE);
-					break;
+			if (preg_match('/[a-z]+/i', $name, $match)) {
+				$propertyName = $match[0];
+				$setterName = 'set' . ucfirst($propertyName);
+				if (is_callable(array($generator, $setterName))) {
+					$generator->$setterName($value);
+				}
 			}
 		}
 	}
