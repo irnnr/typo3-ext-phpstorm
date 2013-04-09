@@ -33,7 +33,7 @@ require_once(dirname(__FILE__) . '/../Classes/CompatibilityUtility.php');
 class CommandLineLauncher {
 
 	/**
-	 * @var array
+	 * @var array Array with command line parameter
 	 */
 	protected $cliArguments = array();
 
@@ -70,7 +70,7 @@ class CommandLineLauncher {
 	/**
 	 * Sets generator properties according to CLI arguments
 	 *
-	 * @param \TYPO3\CMS\Phpstorm\MetaDataFileGenerator $generator
+	 * @param \TYPO3\CMS\Phpstorm\MetaDataFileGenerator $generator Generator to configure depending on command line parameter
 	 */
 	protected function handleCliArguments(MetaDataFileGenerator $generator) {
 		foreach ($this->cliArguments as $name => $value) {
@@ -84,9 +84,9 @@ class CommandLineLauncher {
 
 	/**
 	 * Sends an output to stdOut according to the command line parameter
-	 * 
-	 * @param string $string
-	 * @param boolean $force
+	 *
+	 * @param string $string Content to output to stdOut
+	 * @param boolean $force Weather force the output if it's disabled by command line parameter
 	 *
 	 * @return boolean
 	 */
