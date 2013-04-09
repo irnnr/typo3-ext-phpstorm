@@ -39,6 +39,8 @@ class CommandLineLauncher {
 
 	/**
 	 * Main function of the command line launcher
+	 *
+	 * @return void
 	 */
 	public function cli_main() {
 		if (TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_CLI && basename(PATH_thisScript) == 'cli_dispatch.phpsh') {
@@ -71,13 +73,17 @@ class CommandLineLauncher {
 	 * Sets generator properties according to CLI arguments
 	 *
 	 * @param \TYPO3\CMS\Phpstorm\MetaDataFileGenerator $generator Generator to configure depending on command line parameter
+	 *
+	 * @return void
 	 */
 	protected function handleCliArguments(MetaDataFileGenerator $generator) {
 		foreach ($this->cliArguments as $name => $value) {
-			switch ($name) {
-				case '--disableClassAliases':
-					$generator->setIncludeAliases(FALSE);
-					break;
+			if (preg_match('/[a-z]+/i', $name, $match)) {
+				$propertyName = $match[0];
+				$setterName = 'set' . ucfirst($propertyName);
+				if (is_callable(array($generator, $setterName))) {
+					$generator->$setterName($value);
+				}
 			}
 		}
 	}
