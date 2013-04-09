@@ -31,6 +31,45 @@ namespace TYPO3\CMS\Phpstorm;
 final class CompatibilityUtility {
 
 	/**
+	 * Splits up the class name if namespaced (as autoloader of lower versions cannot handle them).
+	 *
+	 * @param $className
+	 *
+	 * @return boolean
+	 */
+	static public function requireOnce($className) {
+		// Only for compatibility versions
+		if (!class_exists('TYPO3\\CMS\\Core\\Utility\\GeneralUtility')) {
+			if (strpos($className, '\\') !== FALSE) {
+				$classToExplode = str_replace('\\\\', '\\', $className);
+				$explodedClassName = explode('\\', $classToExplode);
+				if (count($explodedClassName) > 1) {
+					// Remove vendor name
+					array_shift($explodedClassName);
+					if ($explodedClassName[0] === 'CMS') {
+						// Remove CMS part
+						array_shift($explodedClassName);
+					}
+					$extensionName = strtolower(array_shift($explodedClassName));
+					$requiredFile = \t3lib_extMgm::extPath($extensionName) . 'Classes/' . implode('/', $explodedClassName) . '.php';
+					if (file_exists($requiredFile)) {
+						require_once($requiredFile);
+						return TRUE;
+					} else {
+						return FALSE;
+					}
+				} else {
+					return FALSE;
+				}
+			} else {
+				return TRUE;
+			}
+		} else {
+			return TRUE;
+		}
+	}
+
+	/**
 	 * @param string $className
 	 *
 	 * @return object
@@ -39,22 +78,7 @@ final class CompatibilityUtility {
 		if (class_exists('TYPO3\\CMS\\Core\\Utility\\GeneralUtility')) {
 			return \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance($className);
 		} else {
-			// Require namespaced file as the autoloader can not handle them in lower versions
-			$classToExplode = str_replace('\\\\', '\\', $className);
-			$explodedClassName = explode('\\', $classToExplode);
-			if (count($explodedClassName) > 1) {
-				// Remove vendor name
-				array_shift($explodedClassName);
-				if ($explodedClassName[0] === 'CMS') {
-					// Remove CMS part
-					array_shift($explodedClassName);
-				}
-				$extensionName = strtolower(array_shift($explodedClassName));
-				$requiredFile = \t3lib_extMgm::extPath($extensionName) . 'Classes/' . implode('/', $explodedClassName) . '.php';
-				if (file_exists($requiredFile)) {
-					require_once($requiredFile);
-				}
-			}
+			self::requireOnce($className);
 			return \t3lib_div::makeInstance($className);
 		}
 	}
