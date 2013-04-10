@@ -54,6 +54,11 @@ class MetaDataFileGenerator {
 	 */
 	protected $includeAliases = TRUE;
 
+	/**
+	 * @var array Paths which should be excluded from lookup
+	 */
+	protected $excludePathArray = array();
+
 
 	/**
 	 * Constructor, sets the default value for the output file
@@ -72,6 +77,28 @@ class MetaDataFileGenerator {
 	 */
 	public function setDisableClassAliases($value) {
 		$this->includeAliases = FALSE;
+	}
+
+	/**
+	 * @param string $value Comma separated string with paths to exclude from file lookup
+	 */
+	public function setExcludePaths($value) {
+		$excludePathArray = explode(',', $value);
+		$pathArray = array();
+		foreach ($excludePathArray as $path) {
+			$path = trim($path);
+			// Make path absolute
+			if (strpos($path, PATH_site) === FALSE) {
+				$path = PATH_site . ltrim($path, '/');
+			}
+			if ($path && is_dir($path)) {
+				$pathArray[] = trim($path, '/');
+			}
+		}
+		unset($path);
+
+		$this->excludePathArray = array_merge($this->excludePathArray, $pathArray);
+		$this->excludePathArray = array_unique($this->excludePathArray);
 	}
 
 	/**
@@ -147,9 +174,12 @@ PHP_STORM_META;
 		$aliasToClassNameMapping = array();
 		foreach (CompatibilityUtility::getLoadedExtensionListArray() as $extensionKey) {
 			try {
-				$extensionClassAliasMap = CompatibilityUtility::extPath($extensionKey, 'Migrations/Code/ClassAliasMap.php');
-				if (file_exists($extensionClassAliasMap)) {
-					$aliasToClassNameMapping = array_merge($aliasToClassNameMapping, require $extensionClassAliasMap);
+				$extensionPath = CompatibilityUtility::extPath($extensionKey);
+				if (!in_array($extensionPath, $this->excludePathArray)) {
+					$extensionClassAliasMap = $extensionPath . 'Migrations/Code/ClassAliasMap.php';
+					if (file_exists($extensionClassAliasMap)) {
+						$aliasToClassNameMapping = array_merge($aliasToClassNameMapping, require $extensionClassAliasMap);
+					}
 				}
 			} catch (\BadFunctionCallException $e) {
 			}
@@ -174,7 +204,8 @@ PHP_STORM_META;
 		$scanRootPath = PATH_site;
 		$classes      = array();
 
-		$iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($scanRootPath, \FilesystemIterator::FOLLOW_SYMLINKS));
+		CompatibilityUtility::requireOnce('TYPO3\\CMS\\Phpstorm\\DirectoryNameFilterIterator');
+		$iterator = new DirectoryNameFilterIterator(new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($scanRootPath, \FilesystemIterator::FOLLOW_SYMLINKS)), $this->excludePathArray);
 		$files = new \RegexIterator($iterator, '/^.+\.php$/', \RecursiveRegexIterator::GET_MATCH);
 
 		foreach ($files as $file) {
