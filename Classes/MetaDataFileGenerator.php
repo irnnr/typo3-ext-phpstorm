@@ -211,21 +211,18 @@ PHP_STORM_META;
 	 */
 	protected function getFileNamespace($file) {
 		$fileHandle = fopen($file, "r");
-		$lines = array();
+		$matched = 0;
 		while (!feof($fileHandle)) {
-			$buffer = fgets($fileHandle, 4096);
-			$lines[] = $buffer;
-
-			if (count($lines) == 2) {
+			$line = fgets($fileHandle, 4096);
+			$matches = NULL;
+			$matched = preg_match('/^namespace[ \t]+(.*);$/', $line, $matches);
+			if ($matched || strpos($line, 'class') !== FALSE) {
 				break;
 			}
 		}
 		fclose ($fileHandle);
 
-		$matches = NULL;
-		$matched = preg_match('/^namespace[ \t]+(.*);$/', $lines[1], $matches);
-
-		return ($matched ? $matches[1] . '\\' : '');
+		return ($matched && isset($matches) ? $matches[1] . '\\' : '');
 	}
 
 }
