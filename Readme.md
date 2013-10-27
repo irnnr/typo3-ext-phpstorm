@@ -38,6 +38,12 @@ provide backwardscompatibility with extensions that do not use the new names
 yet a class alias map has been created. By default that alias map is included.
 Use --disableClassAliases to prevent including those aliasses.
 
+### --disableCache
+
+The analyzed classes are cached in a serialized array, and only files which have
+changed since the last generation of the meta data file are analyzed.
+Set this option if you want to bypass the cache and freshly analyze all php files.
+
 ### -s, --silent
 
 Silent operation, will only output errors and important messages.

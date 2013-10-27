@@ -23,6 +23,7 @@ namespace TYPO3\CMS\Phpstorm;
 *  This copyright notice MUST APPEAR in all copies of the script!
 ***************************************************************/
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 /**
  * PhpStorm uses a meta data file to help with code completion when factory
@@ -50,9 +51,29 @@ class MetaDataFileGenerator {
 	protected $outFile = '';
 
 	/**
+	 * @var string The file into which classes array is cached
+	 */
+	protected $cacheFile = '';
+
+	/**
+	 * @var boolean Whether to disable cache or not
+	 */
+	protected $disableCache = FALSE;
+
+	/**
 	 * @var boolean Whether to include the class aliases (old class names)
 	 */
 	protected $includeAliases = TRUE;
+
+	/**
+	 * @var integer the unix timestamp when the Manifest was generated the last time
+	 */
+	protected $lastModification = 0;
+
+	/**
+	 * @var integer holding the actual unix timestamp
+	 */
+	protected $actualTime = 0;
 
 
 	/**
@@ -61,6 +82,8 @@ class MetaDataFileGenerator {
 	 */
 	public function __construct() {
 		$this->outFile = PATH_site . '.phpstorm.meta.php';
+		$this->cacheFile = PATH_site . '.phpstorm.meta.cache';
+		$this->actualTime = mktime();
 	}
 
 	/**
@@ -72,6 +95,15 @@ class MetaDataFileGenerator {
 	 */
 	public function setDisableClassAliases($value) {
 		$this->includeAliases = FALSE;
+	}
+
+	/**
+	 * Allows to turn off the use of the cache.
+	 *
+	 * @param mixed $value This parameter is not in use and only added because of compatibility
+	 */
+	public function setDisableCache($value) {
+		$this->disableCache = TRUE;
 	}
 
 	/**
@@ -172,10 +204,16 @@ PHP_STORM_META;
 	 */
 	protected function getClassesFromFiles() {
 		$scanRootPath = PATH_site;
-		$classes      = array();
 
-		$iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($scanRootPath, \FilesystemIterator::FOLLOW_SYMLINKS));
-		$files = new \RegexIterator($iterator, '/^.+\.php$/', \RecursiveRegexIterator::GET_MATCH);
+		$classes = $this->getClassesFromCache();
+
+		$iterator = new \RecursiveDirectoryIterator($scanRootPath, \FilesystemIterator::FOLLOW_SYMLINKS);
+
+		if($this->lastModification > 0) {
+			$iterator =  GeneralUtility::makeInstance('TYPO3\\CMS\Phpstorm\\RecursiveFileModTimeFilterIterator', $iterator, $this->lastModification);
+		}
+
+		$files = new \RegexIterator(new \RecursiveIteratorIterator($iterator), '/^.+\.php$/', \RecursiveRegexIterator::GET_MATCH);
 
 		foreach ($files as $file) {
 			$file = $file[0];
@@ -197,6 +235,10 @@ PHP_STORM_META;
 				}
 			}
 		}
+
+		$classes = array_unique($classes);
+
+		$this->writeClassesToCache($classes);
 
 		return $classes;
 	}
@@ -226,6 +268,54 @@ PHP_STORM_META;
 		$matched = preg_match('/^namespace[ \t]+(.*);$/', $lines[1], $matches);
 
 		return ($matched ? $matches[1] . '\\' : '');
+	}
+
+	/**
+	 * Writes the $classes array to a cache file
+	 *
+	 * @param array $classes
+	 *
+	 * @return void
+	 */
+	protected function writeClassesToCache(array $classes) {
+		$cacheFile = fopen($this->cacheFile, 'w');
+
+		$cacheData = serialize(array('lastModification' => $this->actualTime, 'classes' => $classes));
+
+		fwrite($cacheFile, $cacheData);
+		fclose($cacheFile);
+	}
+
+	/**
+	 * Reads the $classes from cache file, if it exists
+	 *
+	 * @return array
+	 */
+	protected function getClassesFromCache() {
+		if($this->disableCache === TRUE) {
+			return array();
+		}
+
+		$serializedCache = '';
+
+		if(@is_file($this->cacheFile)) {
+			$cacheFile = fopen($this->cacheFile, 'r');
+
+			while (!feof($cacheFile)) {
+				$serializedCache .= fgets($cacheFile, 4096);
+			}
+
+			fclose ($cacheFile);
+		}
+
+		if($serializedCache) {
+			$cachedData = unserialize($serializedCache);
+
+			$this->lastModification = $cachedData['lastModification'];
+			$classes = $cachedData['classes'];
+		}
+
+		return is_array($classes) ? $classes : array();
 	}
 
 }
