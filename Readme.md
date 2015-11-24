@@ -38,6 +38,11 @@ provide backwardscompatibility with extensions that do not use the new names
 yet a class alias map has been created. By default that alias map is included.
 Use --disableClassAliases to prevent including those aliasses.
 
+### --excludePaths=path1,path2,path3
+
+To exclude paths from being crawled you can submit --excludePaths as a
+comma separated value of paths.
+
 ### -s, --silent
 
 Silent operation, will only output errors and important messages.
